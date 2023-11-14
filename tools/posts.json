@@ -1,5 +1,12 @@
 [
   {
+    "title": "部署到vercel和自定义代码高亮",
+    "date": "2023-11-14",
+    "slug": "deploy-vercel-custom-highlight",
+    "estimatedReadTime": 9,
+    "description": "接《用MDX和Remix创建自己的Blog》，本文将介绍如何将博客部署到vercel和自定义代码高亮。"
+  },
+  {
     "title": "用MDX和Remix创建自己的Blog",
     "date": "2023-11-13",
     "slug": "step-by-step-mdx-remix-blog",
