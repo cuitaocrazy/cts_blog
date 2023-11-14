@@ -2,7 +2,7 @@ import fs from "fs";
 import { parse, stringify } from "yaml";
 
 const routesDirectory = "./app/routes";
-const mdxHeaderPattern = /---\n(.*)\n---/s;
+const mdxHeaderPattern = /---\r?\n(.*?)\r?\n---/s;
 const postNamePattern = /posts\.(.*)\.mdx/;
 
 const mdxFiles = fs
@@ -19,6 +19,19 @@ function formatDate(date) {
   if (day.length < 2) day = "0" + day;
 
   return [year, month, day].join("-");
+}
+
+function estimateReadTime(text) {
+  const chineseCharsPerMinute = 350;
+  const englishCharsPerMinute = 225;
+
+  const chineseChars = text.match(/[\u4e00-\u9fa5]/g)?.length || 0;
+  const englishChars = text.match(/[a-zA-Z]/g)?.length || 0;
+
+  const chineseReadTime = Math.ceil(chineseChars / chineseCharsPerMinute);
+  const englishReadTime = Math.ceil(englishChars / englishCharsPerMinute);
+
+  return chineseReadTime + englishReadTime;
 }
 
 const posts = mdxFiles.map((file) => {
@@ -52,8 +65,14 @@ const posts = mdxFiles.map((file) => {
   }
 
   return {
-    ...mdxHeaderObject,
+    title: mdxHeaderObject.title,
+    date: mdxHeaderObject.date,
     slug: postName,
+    estimatedReadTime: estimateReadTime(mdxFile),
+    description: mdxHeaderObject.meta.reduce(
+      (acc, cur) => cur.description || acc,
+      ""
+    ),
   };
 });
 

@@ -26,7 +26,12 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <header className="p-4 text-5xl font-bold text-center">
+          CtCtkLfh's Blog
+        </header>
+        <main>
+          <Outlet />
+        </main>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
