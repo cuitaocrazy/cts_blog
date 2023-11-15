@@ -2,7 +2,7 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import highlightStyles from "highlight.js/styles/github.min.css";
 import katexStyles from "katex/dist/katex.css";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import posts from "../../tools/posts.json";
+import posts from "../../tools/posts-summaries.json";
 
 export const links = () => {
   return [

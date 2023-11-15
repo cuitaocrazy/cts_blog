@@ -187,4 +187,7 @@ posts.sort((a, b) => {
 /**
  * Writes the posts array to a JSON file.
  */
-fs.writeFileSync("./tools/posts.json", JSON.stringify(posts, null, 2));
+fs.writeFileSync(
+  "./tools/posts-summaries.json",
+  JSON.stringify(posts, null, 2)
+);
