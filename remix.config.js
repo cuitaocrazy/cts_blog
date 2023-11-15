@@ -1,5 +1,4 @@
 import { visit } from "unist-util-visit";
-import rh from "rehype-highlight";
 /** @type {import('@remix-run/dev').AppConfig} */
 export default {
   ignoredRouteFiles: ["**/.*"],
@@ -13,7 +12,7 @@ export default {
   mdx: async (filename) => {
     const [rehypeHighlight, remarkToc, remarkMath, rehypeKatex] =
       await Promise.all([
-        enhancedRehypHighlight,
+        import("rehype-highlight").then((mod) => mod.default),
         import("remark-toc").then((mod) => mod.default),
         import("remark-math").then((mod) => mod.default),
         import("rehype-katex").then((mod) => mod.default),
@@ -21,46 +20,62 @@ export default {
 
     return {
       remarkPlugins: [remarkToc, remarkMath],
-      rehypePlugins: [rehypeHighlight, rehypeKatex],
+      rehypePlugins: [enhancedRehypHighlight(rehypeHighlight), rehypeKatex],
     };
   },
 };
 
-function enhancedRehypHighlight(options) {
-  const _rh = rh(options);
+/**
+ * @typedef {import('rehype-highlight').default} Plugin
+ */
 
-  return (tree, file) => {
-    visit(tree, (node) => {
-      if (node?.type === "element" && node?.tagName === "pre") {
-        const [codeElement] = node.children;
+/**
+ *
+ * @param {Plugin} highlightPlugin
+ * @returns {Plugin}
+ */
+function enhancedRehypHighlight(highlightPlugin) {
+  return (options) => {
+    const rh = highlightPlugin(options);
+    return (tree, file) => {
+      // preprocess, extract code and language
+      visit(tree, (node) => {
+        if (node?.type === "element" && node?.tagName === "pre") {
+          const [codeElement] = node.children;
 
-        if (codeElement.tagName !== "code") {
-          return;
+          if (codeElement.tagName !== "code") {
+            return;
+          }
+
+          // add code to node properties of react pre component
+          node.properties.code = codeElement.children[0].value;
+
+          if (!codeElement.properties.className) {
+            return;
+          }
+
+          // add language to node properties of react pre component
+          node.properties.language = codeElement.properties.className[0].slice(
+            "language-".length
+          );
         }
-
-        node.properties.code = codeElement.children[0].value;
-
-        if (!codeElement.properties.className) {
-          return;
+      });
+      // normal process
+      rh(tree, file);
+      // postprocess, replace pre with Pre and add import statement
+      visit(tree, (node) => {
+        if (node?.type === "element" && node?.tagName === "pre") {
+          node.tagName = "Pre";
         }
-
-        node.properties.language = codeElement.properties.className[0].slice(
-          "language-".length
-        );
-      }
-    });
-    _rh(tree, file);
-    visit(tree, (node) => {
-      if (node?.type === "element" && node?.tagName === "pre") {
-        node.tagName = "Pre";
-        // node.properties.raw = node.raw;
-        // node.properties.language = node.language;
-      }
-    });
-    tree.children.push(preComponentImport);
+      });
+      tree.children.push(preComponentImport);
+    };
   };
 }
 
+/**
+ * mdx Pre component import statement
+ */
 const preComponentImport = {
   type: "mdxjsEsm",
   data: {

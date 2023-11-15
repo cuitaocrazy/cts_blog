@@ -31,10 +31,15 @@ export default function Posts() {
   return (
     <section className="py-8 sm:py-16 lg:py-20">
       <article className="max-w-3xl mx-auto">
-        <header className="text-center">
+        <header className="text-center mb-8">
           <p className="text-muted-foreground">{`${post.date} ~ ${post.estimatedReadTime} min read`}</p>
-          <h1 className="text-5xl font-bold mb-8">{post.title}</h1>
+          <h1 className="text-5xl font-bold">{post.title}</h1>
         </header>
+        <img
+          src={post.image}
+          alt="博客文章的主题图片"
+          className="w-full aspect-video mb-8"
+        />
         <div className="prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit">
           <Outlet />
         </div>
