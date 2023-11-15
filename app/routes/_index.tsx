@@ -22,6 +22,7 @@ const PostSummaryCard: FC<PostSummaryCardProps> = (props) => {
           {props.title}
         </div>
         <div className="text-sm text-muted-foreground">{props.description}</div>
+        <div className="text-sm text-muted-foreground">{props.date}</div>
       </div>
     </Link>
   );

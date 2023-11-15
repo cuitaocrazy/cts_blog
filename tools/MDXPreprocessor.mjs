@@ -102,7 +102,7 @@ const posts = mdxFiles.map((file) => {
 
   // If the image is not present in the MDX header, add default image.
   if (!mdxHeaderObject.image) {
-    mdxHeaderObject.image = "/images/blog_no_image_placeholder.png";
+    mdxHeaderObject.image = "/images/blog_no_image_placeholder.webp";
     needRewrite = true;
   }
 
@@ -149,7 +149,7 @@ const posts = mdxFiles.map((file) => {
       content: postSummary.description,
     });
 
-    if (postSummary.image !== "/images/blog_no_image_placeholder.png") {
+    if (postSummary.image !== "/images/blog_no_image_placeholder.webp") {
       mdxHeaderObject.meta.push({
         name: "twitter:image",
         content: mdxHeaderObject.image,
