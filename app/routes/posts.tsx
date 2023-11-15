@@ -40,7 +40,7 @@ export default function Posts() {
           alt="博客文章的主题图片"
           className="w-full aspect-video mb-8"
         />
-        <div className="prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit">
+        <div className="prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit m-auto px-2 sm:px-0">
           <Outlet />
         </div>
       </article>
