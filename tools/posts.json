@@ -4,7 +4,7 @@
     "date": "2023-11-14",
     "image": "https://i.imgur.com/d1hCZLE.png",
     "slug": "deploy-vercel-custom-highlight",
-    "estimatedReadTime": 9,
+    "estimatedReadTime": 12,
     "description": "接《用MDX和Remix创建自己的Blog》，本文将介绍如何将博客部署到vercel和自定义代码高亮。"
   },
   {
@@ -12,7 +12,7 @@
     "date": "2023-11-13",
     "image": "https://i.imgur.com/VtyIWSt.png",
     "slug": "step-by-step-mdx-remix-blog",
-    "estimatedReadTime": 19,
+    "estimatedReadTime": 21,
     "description": "用Remix创建自己的Blog，使用MDX作为博客内容，使用shadcn/ui作为UI库，使用tailwindcss作为样式库。"
   }
 ]
