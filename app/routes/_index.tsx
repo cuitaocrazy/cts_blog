@@ -13,7 +13,7 @@ type PostSummaryCardProps = PostSummary;
 const PostSummaryCard: FC<PostSummaryCardProps> = (props) => {
   return (
     <Link
-      className="rounded-sm overflow-hidden border shadow"
+      className="rounded-sm overflow-hidden border-y shadow sm:border-x"
       to={`/posts/${props.slug}`}
     >
       <img className="aspect-video" src={props.image} alt="主题图片" />
