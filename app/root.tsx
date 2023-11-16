@@ -1,8 +1,9 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import {
-  json,
-  type LinksFunction,
-  type LoaderFunctionArgs,
+import { json } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
 } from "@remix-run/node";
 import styles from "./globals.css";
 
@@ -13,16 +14,35 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
-  useRouteLoaderData,
+  useFetcher,
+  useLoaderData,
 } from "@remix-run/react";
 import { userPrefs } from "./cookies.server";
+import type { Theme } from "./utils/typs";
+import { useTheme } from "./utils/hooks";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export type Theme = "dark" | "light";
+function ThemeSwitcher() {
+  const theme = useTheme();
+  const fetcher = useFetcher();
+
+  return (
+    <fetcher.Form method="post">
+      <input
+        type="hidden"
+        name="theme"
+        value={theme === "dark" ? "light" : "dark"}
+      />
+      <button type="submit" className="">
+        {theme === "light" ? "🌙" : "🌞"}
+      </button>
+    </fetcher.Form>
+  );
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
@@ -31,13 +51,22 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return json({ theme: (cookie.theme as Theme) || "dark" });
 }
 
-export function useTheme() {
-  const data = useRouteLoaderData<typeof loader>("root");
-  return data!.theme;
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const theme = formData.get("theme") as Theme;
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie = (await userPrefs.parse(cookieHeader)) || {};
+  cookie.theme = theme;
+
+  return new Response(null, {
+    headers: {
+      "Set-Cookie": await userPrefs.serialize(cookie),
+    },
+  });
 }
 
 export default function App() {
-  const theme = useTheme();
+  const theme = useLoaderData<typeof loader>().theme;
   return (
     <html lang="en" className={theme}>
       <head>
@@ -47,8 +76,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <header className="p-4 text-5xl font-bold text-center">
+        <header className="w-full p-4 text-5xl flex content-between">
           CtCtkLfh's Blog
+          <ThemeSwitcher />
         </header>
         <main>
           <Outlet />

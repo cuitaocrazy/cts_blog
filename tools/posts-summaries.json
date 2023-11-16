@@ -5,7 +5,14 @@
     "image": "/images/deploy-vercel-custom-highlight.webp",
     "slug": "deploy-vercel-custom-highlight",
     "estimatedReadTime": 12,
-    "description": "接《用MDX和Remix创建自己的Blog》，本文将介绍如何将博客部署到vercel和自定义代码高亮。"
+    "description": "接《用MDX和Remix创建自己的Blog》，本文将介绍如何将博客部署到vercel和自定义代码高亮。",
+    "tags": [
+      "Vercel Deployment",
+      "Code Highlighting",
+      "MDX",
+      "Remix",
+      "Advanced Coding Techniques"
+    ]
   },
   {
     "title": "用MDX和Remix创建自己的Blog",
@@ -13,6 +20,16 @@
     "image": "/images/step-by-step-mdx-remix-blog.webp",
     "slug": "step-by-step-mdx-remix-blog",
     "estimatedReadTime": 21,
-    "description": "用Remix创建自己的Blog，使用MDX作为博客内容，使用shadcn/ui作为UI库，使用tailwindcss作为样式库。"
+    "description": "用Remix创建自己的Blog，使用MDX作为博客内容，使用shadcn/ui作为UI库，使用tailwindcss作为样式库。",
+    "tags": [
+      "Remix",
+      "MDX",
+      "Web Development",
+      "Static Blogging",
+      "CSS Framework",
+      "UI Design",
+      "Coding Tutorial",
+      "Tailwind CSS"
+    ]
   }
 ]

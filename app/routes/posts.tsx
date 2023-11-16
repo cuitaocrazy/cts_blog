@@ -4,7 +4,8 @@ import githubDarkStyles from "highlight.js/styles/github-dark.css";
 import katexStyles from "katex/dist/katex.css";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import posts from "../../tools/posts-summaries.json";
-import { useTheme } from "~/root";
+import { cva } from "class-variance-authority";
+import { useTheme } from "~/utils/hooks";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -13,6 +14,21 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const post = posts.find((p) => p.slug === slug);
   return json(post);
 }
+
+const markdownStyles = cva(
+  "prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit m-auto px-2 sm:px-0",
+  {
+    variants: {
+      theme: {
+        light: "",
+        dark: "prose-invert",
+      },
+    },
+    defaultVariants: {
+      theme: "light",
+    },
+  }
+);
 
 export default function Posts() {
   const post = useLoaderData<typeof loader>();
@@ -30,12 +46,7 @@ export default function Posts() {
           alt="博客文章的主题图片"
           className="w-full aspect-video mb-8"
         />
-        <div
-          className={
-            "prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit m-auto px-2 sm:px-0 " +
-            (theme === "dark" ? "prose-invert" : "")
-          }
-        >
+        <div className={markdownStyles({ theme: theme })}>
           <link
             rel="stylesheet"
             href={theme === "light" ? githubStyles : githubDarkStyles}
