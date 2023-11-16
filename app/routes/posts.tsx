@@ -1,21 +1,10 @@
 import { Outlet, useLoaderData } from "@remix-run/react";
-import highlightStyles from "highlight.js/styles/github.min.css";
+import githubStyles from "highlight.js/styles/github.min.css";
+import githubDarkStyles from "highlight.js/styles/github-dark.css";
 import katexStyles from "katex/dist/katex.css";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import posts from "../../tools/posts-summaries.json";
-
-export const links = () => {
-  return [
-    {
-      rel: "stylesheet",
-      href: highlightStyles,
-    },
-    {
-      rel: "stylesheet",
-      href: katexStyles,
-    },
-  ];
-};
+import { useTheme } from "~/root";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -27,6 +16,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
 
 export default function Posts() {
   const post = useLoaderData<typeof loader>();
+  const theme = useTheme();
 
   return (
     <section className="py-8 sm:py-16 lg:py-20">
@@ -40,7 +30,17 @@ export default function Posts() {
           alt="博客文章的主题图片"
           className="w-full aspect-video mb-8"
         />
-        <div className="prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit m-auto px-2 sm:px-0">
+        <div
+          className={
+            "prose prose-xl prose-pre:p-0 prose-pre:border prose-pre:bg-inherit m-auto px-2 sm:px-0 " +
+            (theme === "dark" ? "prose-invert" : "")
+          }
+        >
+          <link
+            rel="stylesheet"
+            href={theme === "light" ? githubStyles : githubDarkStyles}
+          />
+          <link rel="stylesheet" href={katexStyles} />
           <Outlet />
         </div>
       </article>
