@@ -1,39 +1,68 @@
 import { cssBundleHref } from "@remix-run/css-bundle";
-import {
-  json,
-  type LinksFunction,
-  type LoaderFunctionArgs,
+import { json } from "@remix-run/node";
+import type {
+  ActionFunctionArgs,
+  LinksFunction,
+  LoaderFunctionArgs,
 } from "@remix-run/node";
 import styles from "./globals.css";
 
 import {
+  Form,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  useRouteLoaderData,
 } from "@remix-run/react";
 import { userPrefs } from "./cookies.server";
+import type { Theme } from "./utils/typs";
+import { useTheme } from "./utils/hooks";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-export type Theme = "dark" | "light";
+function ThemeSwitcher() {
+  const theme = useTheme();
+  return (
+    <Form method="post">
+      <input
+        type="hidden"
+        name="theme"
+        value={theme === "dark" ? "light" : "dark"}
+      />
+      <button type="submit" className="">
+        {theme === "light" ? "🌙" : "🌞"}
+      </button>
+    </Form>
+  );
+}
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
   const cookie = (await userPrefs.parse(cookieHeader)) || {};
 
+  console.log("loader", cookie.theme);
   return json({ theme: (cookie.theme as Theme) || "dark" });
 }
 
-export function useTheme() {
-  const data = useRouteLoaderData<typeof loader>("root");
-  return data!.theme;
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const theme = formData.get("theme") as Theme;
+  const cookieHeader = request.headers.get("Cookie");
+  const cookie = (await userPrefs.parse(cookieHeader)) || {};
+  cookie.theme = theme;
+  console.log(theme);
+
+  console.log(await userPrefs.serialize(cookie));
+  return json(undefined, {
+    headers: {
+      "Set-Cookie": await userPrefs.serialize(cookie),
+    },
+  });
 }
 
 export default function App() {
@@ -47,8 +76,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <header className="p-4 text-5xl font-bold text-center">
+        <header className="w-full p-4 text-5xl flex content-between">
           CtCtkLfh's Blog
+          <ThemeSwitcher />
         </header>
         <main>
           <Outlet />

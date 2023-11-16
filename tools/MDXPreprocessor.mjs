@@ -69,7 +69,8 @@ function estimateReadTime(text) {
  *  image: string,
  *  slug: string,
  *  estimatedReadTime: number,
- *  description: string
+ *  description: string,
+ * tags: string[],
  *  }} PostSummary
  */
 
@@ -118,6 +119,8 @@ const posts = mdxFiles.map((file) => {
         description || (meta["name"] === "description" && meta["content"]),
       null
     ) || "";
+
+  postSummary.tags = mdxHeaderObject.tags || [];
 
   // If the twitter card is not presend in the MDX header, add twiter card meta
   // and OG meta.
