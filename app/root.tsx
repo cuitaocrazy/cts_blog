@@ -8,13 +8,14 @@ import type {
 import styles from "./globals.css";
 
 import {
-  Form,
   Links,
   LiveReload,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
+  useFetcher,
+  useLoaderData,
 } from "@remix-run/react";
 import { userPrefs } from "./cookies.server";
 import type { Theme } from "./utils/typs";
@@ -27,8 +28,10 @@ export const links: LinksFunction = () => [
 
 function ThemeSwitcher() {
   const theme = useTheme();
+  const fetcher = useFetcher();
+
   return (
-    <Form method="post">
+    <fetcher.Form method="post">
       <input
         type="hidden"
         name="theme"
@@ -37,7 +40,7 @@ function ThemeSwitcher() {
       <button type="submit" className="">
         {theme === "light" ? "🌙" : "🌞"}
       </button>
-    </Form>
+    </fetcher.Form>
   );
 }
 
@@ -45,7 +48,6 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
   const cookie = (await userPrefs.parse(cookieHeader)) || {};
 
-  console.log("loader", cookie.theme);
   return json({ theme: (cookie.theme as Theme) || "dark" });
 }
 
@@ -55,10 +57,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
   const cookie = (await userPrefs.parse(cookieHeader)) || {};
   cookie.theme = theme;
-  console.log(theme);
 
-  console.log(await userPrefs.serialize(cookie));
-  return json(undefined, {
+  return new Response(null, {
     headers: {
       "Set-Cookie": await userPrefs.serialize(cookie),
     },
@@ -66,7 +66,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function App() {
-  const theme = useTheme();
+  const theme = useLoaderData<typeof loader>().theme;
   return (
     <html lang="en" className={theme}>
       <head>
