@@ -5,7 +5,7 @@ import katexStyles from "katex/dist/katex.css";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import posts from "../../tools/posts-summaries.json";
 import { cva } from "class-variance-authority";
-import { useTheme } from "~/utils/hooks";
+import { useTheme } from "~/context/theme";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);

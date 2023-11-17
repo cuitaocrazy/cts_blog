@@ -19,29 +19,39 @@ import {
 } from "@remix-run/react";
 import { userPrefs } from "./cookies.server";
 import type { Theme } from "./utils/typs";
-import { useTheme } from "./utils/hooks";
+import { useMemo } from "react";
+import { ThemeProvider } from "./context/theme";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: styles },
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
-function ThemeSwitcher() {
-  const theme = useTheme();
+function useTheme(theme: Theme) {
   const fetcher = useFetcher();
 
-  return (
-    <fetcher.Form method="post">
-      <input
-        type="hidden"
-        name="theme"
-        value={theme === "dark" ? "light" : "dark"}
-      />
-      <button type="submit" className="">
-        {theme === "light" ? "🌙" : "🌞"}
-      </button>
-    </fetcher.Form>
-  );
+  const optimisticTheme = fetcher.formData
+    ? (fetcher.formData.get("theme") as Theme)
+    : theme;
+
+  const ThemeSwitcher = useMemo(() => {
+    return function ThemeSwitcher() {
+      return (
+        <fetcher.Form method="post">
+          <input
+            type="hidden"
+            name="theme"
+            value={optimisticTheme === "dark" ? "light" : "dark"}
+          />
+          <button type="submit" className="">
+            {optimisticTheme === "light" ? "🌙" : "🌞"}
+          </button>
+        </fetcher.Form>
+      );
+    };
+  }, [fetcher, optimisticTheme]);
+
+  return { optimisticTheme, ThemeSwitcher };
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
@@ -66,7 +76,10 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function App() {
-  const theme = useLoaderData<typeof loader>().theme;
+  const { optimisticTheme: theme, ThemeSwitcher } = useTheme(
+    useLoaderData<typeof loader>().theme
+  );
+
   return (
     <html lang="en" className={theme}>
       <head>
@@ -81,7 +94,9 @@ export default function App() {
           <ThemeSwitcher />
         </header>
         <main>
-          <Outlet />
+          <ThemeProvider value={theme}>
+            <Outlet />
+          </ThemeProvider>
         </main>
         <ScrollRestoration />
         <Scripts />
