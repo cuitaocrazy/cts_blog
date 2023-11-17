@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/(.*)\\.webp$",
+      "source": "/images/step-by-step-mdx-remix-blog.webp",
       "headers": [
         {
           "key": "Cache-Control",
