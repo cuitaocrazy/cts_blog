@@ -1,11 +1,11 @@
 [
   {
-    "title": "部署到vercel和自定义代码高亮",
+    "title": "部署到vercel和自己定义代码高亮",
     "date": "2023-11-14",
     "image": "/images/deploy-vercel-custom-highlight.webp",
     "slug": "deploy-vercel-custom-highlight",
-    "estimatedReadTime": 12,
-    "description": "接《用MDX和Remix创建自己的Blog》，本文将介绍如何将博客部署到vercel和自定义代码高亮。",
+    "estimatedReadTime": 10,
+    "description": "接《用MDX和Remix创建自己的Blog》，本文将介绍如何将博客部署到vercel和自己定义代码高亮。",
     "tags": [
       "Vercel Deployment",
       "Code Highlighting",
