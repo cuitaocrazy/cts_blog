@@ -1,0 +1,124 @@
+---
+meta:
+  - title: 学习Linux Namespaces
+  - name: description
+    content: 学习Linux Namespaces
+  - name: twitter:card
+    content: summary_large_image
+  - name: twitter:title
+    content: 学习Linux Namespaces
+  - name: twitter:description
+    content: 学习Linux Namespaces
+  - property: og:title
+    content: 学习Linux Namespaces
+  - property: og:description
+    content: 学习Linux Namespaces
+  - name: twitter:image
+    content: /images/linux-namespaces.webp
+  - property: og:image
+    content: /images/linux-namespaces.webp
+image: /images/linux-namespaces.webp
+date: 2023-11-28
+
+---
+
+# 学习Linux Namespaces
+
+## 什么是Linux Namespaces
+
+Linux 的命名空间（Namespace）是一种强大的功能，用于实现操作系统级别的资源隔离。命名空间将系统资源封装起来，使得一组进程看到的是一套独立于全局资源的视图。在 Linux 中，命名空间主要用于容器技术（如 Docker），使得每个容器看起来都像是在其自己的独立环境中运行。
+
+## Linux Namespaces的类型
+
+Linux Namespaces 有以下几种类型：
+
+- PID 命名空间（Process ID）：隔离进程 ID，确保进程在自己的命名空间内拥有唯一的 PID。
+- 网络命名空间（Network）：提供独立的网络环境，如 IP 地址、路由表、端口号等。
+- 挂载点命名空间（Mount）：隔离文件系统的挂载点，让不同命名空间的进程看到不同的文件系统布局。
+- UTS 命名空间：允许每个命名空间拥有独立的主机名和域名。
+- 用户命名空间（User）：隔离用户 ID 和组 ID，实现在不同命名空间内部的用户和组 ID 映射。
+- IPC 命名空间（Interprocess Communication）：隔离进程间通信资源，例如信号量、消息队列和共享内存。
+- Cgroup 命名空间（Control Group）：虽然严格来说不是传统意义上的命名空间，但它允许隔离和限制进程组的资源使用。
+- 时间命名空间（Time Namespace）：隔离系统的时间和日期。时间命名空间允许不同的命名空间拥有独立的系统时间，这对于运行时间敏感的应用程序特别有用。
+
+## Linux Namespaces和Cgroup
+
+Linux Namespaces 和 cgroups 是两个独立但互补的特性，它们共同支持容器化和资源管理，但各自有不同的功能和用途。
+
+Linux Namespaces：主要用于提供进程隔离。它们将系统资源封装起来，使一组进程看到的是一套独立于全局资源的视图。命名空间涵盖了 PID、网络、挂载点、UTS、用户和 IPC 等多个方面。
+
+cgroups (Control Groups)：cgroups 是一个不同的 Linux 内核特性，它主要用于限制、记录和隔离进程组所使用的物理资源（如 CPU、内存、磁盘 I/O 等）。cgroups 允许你为一组进程分配资源，并监控和限制它们的资源使用情况。
+
+尽管 cgroups 和命名空间经常在容器技术中一起使用，但它们解决的是不同的问题。命名空间提供了隔离环境，而 cgroups 则提供了资源的限制和管理。
+
+## unshare命令
+
+```bash
+unshare --help
+
+Usage:
+ unshare [options] [<program> [<argument>...]]
+
+Run a program with some namespaces unshared from the parent.
+
+Options:
+ -m, --mount[=<file>]      unshare mounts namespace
+ -u, --uts[=<file>]        unshare UTS namespace (hostname etc)
+ -i, --ipc[=<file>]        unshare System V IPC namespace
+ -n, --net[=<file>]        unshare network namespace
+ -p, --pid[=<file>]        unshare pid namespace
+ -U, --user[=<file>]       unshare user namespace
+ -C, --cgroup[=<file>]     unshare cgroup namespace
+ -T, --time[=<file>]       unshare time namespace
+
+ -f, --fork                fork before launching <program>
+ --map-user=<uid>|<name>   map current user to uid (implies --user)
+ --map-group=<gid>|<name>  map current group to gid (implies --user)
+ -r, --map-root-user       map current user to root (implies --user)
+ -c, --map-current-user    map current user to itself (implies --user)
+
+ --kill-child[=<signame>]  when dying, kill the forked child (implies --fork)
+                             defaults to SIGKILL
+ --mount-proc[=<dir>]      mount proc filesystem first (implies --mount)
+ --propagation slave|shared|private|unchanged
+                           modify mount propagation in mount namespace
+ --setgroups allow|deny    control the setgroups syscall in user namespaces
+ --keep-caps               retain capabilities granted in user namespaces
+
+ -R, --root=<dir>          run the command with root directory set to <dir>
+ -w, --wd=<dir>            change working directory to <dir>
+ -S, --setuid <uid>        set uid in entered namespace
+ -G, --setgid <gid>        set gid in entered namespace
+ --monotonic <offset>      set clock monotonic offset (seconds) in time namespaces
+ --boottime <offset>       set clock boottime offset (seconds) in time namespaces
+
+ -h, --help                display this help
+ -V, --version             display version
+
+For more details see unshare(1).
+
+```
+
+## PID Namespace
+
+PID（进程标识符）命名空间是 Linux 中命名空间功能的一个重要组成部分。它允许系统中的进程在不同的命名空间内拥有独立的 PID（Process ID）。这意味着在不同的 PID 命名空间中，相同的 PID 可以被用于标识不同的进程。
+
+**PID 命名空间的关键特点：**
+- 隔离性：在 PID 命名空间中运行的进程只能看到同一命名空间内的其他进程。对于该命名空间外的进程，它们是不可见的。
+- 独立性：每个 PID 命名空间都有自己的独立进程编号系统。这意味着即使两个不同命名空间中的进程有相同的 PID，它们实际上是完全不同的进程。
+- 层级结构：PID 命名空间可以嵌套。一个子命名空间中的进程可以看到其父命名空间中的进程，但反过来则不行。这种层级结构允许创建更加细粒度的隔离环境。
+
+**PID 命名空间的应用：**
+- 容器化：在 Docker 等容器技术中，PID 命名空间用于确保容器内的进程与宿主机及其他容器的进程相隔离。
+- 安全性和隔离：通过隔离进程，PID 命名空间提高了系统的安全性，防止了进程间的不必要或恶意的交互。
+- 资源管理：在进行资源管理和限制时，PID 命名空间可以帮助识别和控制特定命名空间内的进程。
+
+**如何使用 PID 命名空间：**
+在 Linux 中，可以使用 `unshare` 命令或 `clone()` 系统调用来创建新的 PID 命名空间。例如，使用 `unshare` 命令时，可以通过指定 `-p` 或 `--pid` 选项来创建一个新的 PID 命名空间。
+
+### 实验
+
+```bash
+# 创建一个新的 PID 命名空间
+$ unshare -p -f --mount-proc bash
+```
