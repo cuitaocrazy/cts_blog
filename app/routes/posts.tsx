@@ -2,10 +2,13 @@ import { Outlet, useLoaderData } from "@remix-run/react";
 import githubStyles from "highlight.js/styles/github.min.css";
 import githubDarkStyles from "highlight.js/styles/github-dark.css";
 import katexStyles from "katex/dist/katex.css";
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import type { SerializeFrom, LoaderFunctionArgs } from "@remix-run/node";
 import posts from "../../tools/posts-summaries.json";
 import { cva } from "class-variance-authority";
 import { useTheme } from "~/context/theme";
+import type { Theme } from "~/utils/typs";
+import { memo } from "react";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -30,10 +33,12 @@ const markdownStyles = cva(
   }
 );
 
-export default function Posts() {
-  const post = useLoaderData<typeof loader>();
-  const theme = useTheme();
+type PostProps = {
+  post: SerializeFrom<typeof loader>;
+  theme: Theme;
+};
 
+const Post = memo<PostProps>(({ post, theme }) => {
   return (
     <section className="py-8 sm:py-16 lg:py-20">
       <article className="max-w-3xl mx-auto">
@@ -57,4 +62,11 @@ export default function Posts() {
       </article>
     </section>
   );
+});
+
+export default function Posts() {
+  const post = useLoaderData<typeof loader>();
+  const theme = useTheme();
+
+  return <Post post={post} theme={theme} />;
 }

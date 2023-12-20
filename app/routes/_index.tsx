@@ -1,6 +1,6 @@
 import { json, type MetaFunction } from "@remix-run/node";
 import postsSummaries from "../../tools/posts-summaries.json";
-import type { FC } from "react";
+import { memo, type FC } from "react";
 import { Link, useLoaderData } from "@remix-run/react";
 import type { PostSummary } from "~/utils/typs";
 
@@ -16,7 +16,7 @@ type PostSummaryCardProps = PostSummary;
 export async function loader() {
   return json(postsSummaries);
 }
-const PostSummaryCard: FC<PostSummaryCardProps> = (props) => {
+const PostSummaryCard: FC<PostSummaryCardProps> = memo((props) => {
   return (
     <Link
       className="rounded-sm overflow-hidden border-y shadow sm:border-x"
@@ -32,10 +32,11 @@ const PostSummaryCard: FC<PostSummaryCardProps> = (props) => {
       </div>
     </Link>
   );
-};
+});
 
 export default function Index() {
   const data = useLoaderData<typeof loader>();
+
   return (
     <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-4 lg:container">
       {data.map((postSummary) => (

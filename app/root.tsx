@@ -6,6 +6,9 @@ import type {
   LoaderFunctionArgs,
 } from "@remix-run/node";
 import styles from "./globals.css";
+import { z } from "zod";
+import { parse } from "@conform-to/zod";
+import { conform, useForm } from "@conform-to/react";
 
 import {
   Links,
@@ -27,45 +30,62 @@ export const links: LinksFunction = () => [
   ...(cssBundleHref ? [{ rel: "stylesheet", href: cssBundleHref }] : []),
 ];
 
+const themeSchema = z.object({ theme: z.enum(["light", "dark"]) });
+
 function useTheme(theme: Theme) {
   const fetcher = useFetcher();
 
+  const Form = fetcher.Form;
   const optimisticTheme = fetcher.formData
     ? (fetcher.formData.get("theme") as Theme)
     : theme;
 
+  const [form, { theme: themeField }] = useForm({ id: "theme-form" });
+
   const ThemeSwitcher = useMemo(() => {
     return function ThemeSwitcher() {
       return (
-        <fetcher.Form method="post">
-          <input
-            type="hidden"
-            name="theme"
+        <Form method="post" {...form.props}>
+          <button
+            type="submit"
+            className=""
+            {...conform.fieldset(themeField)}
             value={optimisticTheme === "dark" ? "light" : "dark"}
-          />
-          <button type="submit" className="">
+          >
             {optimisticTheme === "light" ? "🌙" : "🌞"}
           </button>
-        </fetcher.Form>
+        </Form>
       );
     };
-  }, [fetcher, optimisticTheme]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [Form, optimisticTheme]);
 
   return { optimisticTheme, ThemeSwitcher };
 }
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const cookieHeader = request.headers.get("Cookie");
-  const cookie = (await userPrefs.parse(cookieHeader)) || {};
-
-  return json({ theme: (cookie.theme as Theme) || "dark" });
+  const cookie = await userPrefs.parse(cookieHeader);
+  return json({
+    theme: (cookie?.theme === "light" ? "light" : "dark") as Theme,
+  });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
-  const theme = formData.get("theme") as Theme;
+  const submission = parse(formData, { schema: themeSchema });
+  if (submission.intent !== "submit" || !submission.value) {
+    return null;
+  }
+
+  const theme = submission.value.theme;
   const cookieHeader = request.headers.get("Cookie");
   const cookie = (await userPrefs.parse(cookieHeader)) || {};
+
+  if (cookie.theme === theme) {
+    return null;
+  }
+
   cookie.theme = theme;
 
   return new Response(null, {
